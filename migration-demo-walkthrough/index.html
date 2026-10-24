@@ -1,0 +1,58 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Migration Demo: Walkthrough</title><style>
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;color:#1f2328;margin:0;background:#f6f8fa;font-size:15px;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto;padding:28px 20px 48px}
+header{background:#0f766e;color:#fff;padding:26px 0}header .wrap{padding-top:0;padding-bottom:0}
+h1{font-size:26px;margin:0 0 4px}.sub{opacity:.9}
+h2{color:#0f766e;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin:28px 0 10px}
+.note{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;font-size:14px}
+.card{background:#fff;border:1px solid #d1d9e0;border-radius:8px;padding:14px 18px}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:14px}.acts .card b{color:#0f766e}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.m{background:#fff;border:1px solid #d1d9e0;border-radius:8px;padding:12px 14px}
+.m .v{font-size:24px;font-weight:700;color:#0f766e}.m .l{font-size:12.5px;color:#59636e}
+ol.steps{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.step{background:#fff;border:1px solid #d1d9e0;border-radius:8px;padding:14px 18px}
+.hd{display:flex;gap:12px;align-items:flex-start}.t{font-weight:700;font-size:16px}
+.num{flex:none;display:inline-flex;width:26px;height:26px;border-radius:50%;background:#14b8a6;color:#fff;font-weight:700;font-size:13px;align-items:center;justify-content:center;margin-top:1px}
+.step p{margin:8px 0 0 38px;color:#334155}.step details{margin-left:38px}
+a{color:#0969da;font-weight:600;text-decoration:none}a:hover{text-decoration:underline}a:focus-visible,summary:focus-visible{outline:2px solid #0969da;outline-offset:2px}
+details summary{cursor:pointer;color:#0f766e;font-size:13px;margin-top:8px;font-weight:600}details img{max-width:100%;border:1px solid #d1d9e0;border-radius:6px;margin-top:8px}
+ul{margin:4px 0;padding-left:22px}footer{color:#59636e;font-size:13px;margin-top:28px}
+@media(max-width:700px){.acts{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.step p,.step details{margin-left:0}}
+@media print{body{background:#fff}header{background:#fff;color:#0f766e;border-bottom:2px solid #0f766e}details{display:block}details img{max-width:460px}.step,.m,.card{break-inside:avoid}a::after{content:" (" attr(href) ")";font-weight:400;font-size:11px;color:#59636e;word-break:break-all}}
+table{border-collapse:collapse;width:100%;background:#fff;border:1px solid #d1d9e0;border-radius:8px;overflow:hidden;font-size:14px}th,td{text-align:left;padding:8px 12px;border-bottom:1px solid #eaeef2}th{background:#f0fdfa;color:#0f766e}td.b{color:#b91c1c;font-weight:600}td.g{color:#15803d;font-weight:600}code{background:#eff2f5;border-radius:4px;padding:1px 5px;font-size:13px}pre{background:#0d1117;color:#e6edf3;border-radius:8px;padding:10px 14px;margin:8px 0 0 38px;font-size:13px;overflow:auto}.del{color:#ff7b72}.add{color:#7ee787}@media(max-width:700px){pre{margin-left:0}}</style></head><body>
+<header><div class=wrap><h1>Devin Migration Demo: Walkthrough</h1><div class=sub>Upgrading ZoomInfo's open-source gtm-ai-cli from MCP TypeScript SDK v1 to v2</div></div></header>
+<div class=wrap>
+<div class=card style="margin-bottom:16px"><p style="margin:0 0 10px"><b>The situation:</b> The tool depends on an outside building block, the "MCP SDK", to talk to ZoomInfo's AI server. The old version (v1) pulled in 96 third-party packages and had 10 known security warnings, 1 of them critical. Version 2 is smaller and safer, but upgrades are tedious and easy to get subtly wrong.</p><p style="margin:0"><b>What Devin did:</b> Devin checked that everything worked before the upgrade, ran the official upgrade tool, fixed by hand what the tool flagged, re-ran every check, and submitted the change for review. Along the way it caught a hidden bug: in v2, the "your login expired" signal moved to a different spot. Without that fix, expired logins would have stopped refreshing, and nothing would have crashed to warn anyone.</p></div>
+<div class=note><b>Please note:</b> This is a real upgrade, done on a public copy (fork) of the public, MIT-licensed <i>gtm-ai-cli</i> repo. It hasn't been submitted to ZoomInfo. Nothing was deployed, no ZoomInfo system or account was used, and the live tests against ZoomInfo's server weren't run (they need a ZoomInfo login).</div>
+
+<h2>What you're looking at</h2>
+<div class=card>The CLI talks to ZoomInfo's AI server through a library called the MCP TypeScript SDK. Version 2 of that library is split into a smaller, client-only package. Devin ran the upgrade from start to finish: it recorded the "before" checks, ran the official migration tool, fixed what the tool flagged, re-ran every check, and opened a pull request for review. Nothing changes for the person using the CLI.</div>
+
+<h2>Results</h2>
+<div class=metrics>
+<div class=m><div class=v>96 → 16</div><div class=l>Production packages shipped</div></div>
+<div class=m><div class=v>10 → 0</div><div class=l>Security advisories (incl. 1 critical)</div></div>
+<div class=m><div class=v>151 / 151</div><div class=l>Tests passing, before and after</div></div>
+<div class=m><div class=v>3 min 40 s</div><div class=l>First check → pull request open</div></div>
+<div class=m><div class=v>1</div><div class=l>Silent login bug caught (<code>.code</code> → <code>.status</code>)</div></div>
+<div class=m><div class=v>0</div><div class=l>ZoomInfo logins or credentials used</div></div>
+</div>
+
+<h2>Before / after</h2>
+<table><tr><th>Check (Node 24)</th><th>Before</th><th>After</th></tr><tr><td>Install (npm ci)</td><td class="">Pass</td><td class="">Pass</td></tr><tr><td>Type check</td><td class="">Pass, no errors</td><td class="">Pass, no errors</td></tr><tr><td>Unit tests</td><td class="">Pass, 151 / 151</td><td class="">Pass, 151 / 151</td></tr><tr><td>Build</td><td class="">Pass</td><td class="">Pass</td></tr><tr><td>Security advisories (npm audit)</td><td class="b">10 (1 critical, 6 high, 3 moderate)</td><td class="g">0</td></tr><tr><td>Production packages</td><td class="">96</td><td class="">16</td></tr></table>
+
+<h2>Follow along: 6 links</h2>
+<ol class=steps><li class=step><div class=hd><span class=num>1</span><div><div class=t>The starting point</div><a href="https://github.com/zachstoia10/gtm-ai-cli/tree/8673664" target=_blank rel=noopener>Code before the upgrade ↗</a></div></div><p>ZoomInfo's open-source gtm-ai-cli, on a public copy (a fork). It talks to ZoomInfo's AI server through version 1 of the MCP TypeScript SDK, which pulls in 96 third-party packages and carries 10 known security advisories (1 critical, 6 high).</p></li><li class=step><div class=hd><span class=num>2</span><div><div class=t>The ask</div><a href="https://app.devin.ai/sessions/57f3ab3372b8460c80e57240b3fc268d" target=_blank rel=noopener>Devin session ↗</a></div></div><p>Devin was given the job in plain English: upgrade the SDK to version 2 using the official upgrade guide, record every check before and after, and never log in to ZoomInfo or touch ZoomInfo's own repo. Devin ran the official migration tool, then fixed by hand everything it flagged.</p></li><li class=step><div class=hd><span class=num>3</span><div><div class=t>The pull request</div><a href="https://github.com/zachstoia10/gtm-ai-cli/pull/5" target=_blank rel=noopener>PR #5: Migrate MCP TypeScript SDK v1 → v2 ↗</a></div></div><p>One pull request, 6 files. The description has a plain-English summary and the before/after table, and it says clearly what wasn't verified.</p></li><li class=step><div class=hd><span class=num>4</span><div><div class=t>The one line that mattered</div><a href="https://github.com/zachstoia10/gtm-ai-cli/pull/5/files#diff-fc9de229ce5f3d13e6aecbd13523790e3b08d068bd65c73036688ae1f0dfabe3R40" target=_blank rel=noopener>PR #5 → src/mcp.ts, line 40 ↗</a></div></div><p>In version 2, the HTTP status number (for example 401, "your login expired") moved to a new field. If this line were left as it was, the CLI would never notice an expired login, and auto-refresh would quietly stop working. Nothing would crash, so it's easy to miss.</p><pre><span class=del>- return err instanceof StreamableHTTPError &amp;&amp; err.code === 401;</span>
+<span class=add>+ return err instanceof SdkHttpError &amp;&amp; err.status === 401;</span></pre></li><li class=step><div class=hd><span class=num>5</span><div><div class=t>Green checks</div><a href="https://github.com/zachstoia10/gtm-ai-cli/pull/5/checks" target=_blank rel=noopener>PR #5 → "Checks" ↗</a></div></div><p>The automated test check on the pull request passed. All 151 unit tests pass, along with the type check and the build, the same as before the upgrade.</p></li><li class=step><div class=hd><span class=num>6</span><div><div class=t>Merged</div><a href="https://github.com/zachstoia10/gtm-ai-cli/pull/5" target=_blank rel=noopener>PR #5 (merged) ↗</a></div></div><p>After review, the change was merged into main. It's now the live code on this copy.</p></li></ol>
+
+<h2>Key takeaways</h2>
+<div class=card><ul>
+<li><b>Measured, not claimed.</b> Every check was run before and after, and the numbers come straight from that run.</li>
+<li><b>It caught what the tool missed by itself.</b> The migration tool handles the routine work. Devin fixed what it flagged and checked the one change that could silently break logins.</li>
+<li><b>Smaller and safer.</b> 80 fewer third-party packages to ship, and no known advisories left.</li>
+<li><b>People stay in control.</b> The upgrade arrived as a pull request with green checks for an engineer to review and merge.</li>
+</ul></div>
+
+<footer>The Devin session link opens only for invited accounts. The repo and pull request are public. All numbers come from the Devin run on Node 24.22.1.</footer>
+</div></body></html>
